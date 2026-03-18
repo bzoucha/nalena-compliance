@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nalena Ad Compliance Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:wght@400;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --plum: #36254B;
+    --pink: #bc5d91;
+    --mauve: #785375;
+    --bg: #f9f5ff;
+    --card: #FFFFFE;
+    --deco: #cea6c1;
+    --coral: #FD9FAC;
+    --green: #22c55e;
+    --red: #ef4444;
+    --yellow: #f59e0b;
+    --green-bg: #f0fdf4;
+    --red-bg: #fef2f2;
+    --yellow-bg: #fffbeb;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--plum);
+    line-height: 1.6;
+    font-size: 17px;
+  }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, var(--plum) 0%, var(--mauve) 100%);
+    color: white;
+    padding: 60px 40px;
+    text-align: center;
+  }
+  .hero h1 {
+    font-family: 'Lora', serif;
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .hero .subtitle {
+    font-size: 18px;
+    opacity: 0.85;
+    max-width: 500px;
+    margin: 0 auto 24px;
+  }
+  .hero .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 100px;
+    padding: 8px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* ONE RULE */
+  .one-rule {
+    max-width: 800px;
+    margin: -30px auto 0;
+    padding: 0 20px;
+    position: relative;
+    z-index: 2;
+  }
+  .one-rule-card {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(54,37,75,0.12);
+    border: 2px solid var(--deco);
+  }
+  .one-rule-card .label {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--pink);
+    margin-bottom: 12px;
+  }
+  .one-rule-card h2 {
+    font-family: 'Lora', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--plum);
+    line-height: 1.3;
+  }
+  .one-rule-card h2 em {
+    color: var(--pink);
+    font-style: normal;
+  }
+
+  /* SECTIONS */
+  .container { max-width: 900px; margin: 0 auto; padding: 0 20px; }
+
+  .section {
+    padding: 60px 0;
+  }
+  .section-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .section-header .num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--plum);
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+    margin-bottom: 12px;
+  }
+  .section-header h2 {
+    font-family: 'Lora', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--plum);
+    margin-bottom: 8px;
+  }
+  .section-header p {
+    color: var(--mauve);
+    font-size: 16px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* PRINCIPLE CARDS */
+  .principles {
+    display: grid;
+    gap: 20px;
+  }
+  .principle {
+    background: white;
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 2px 12px rgba(54,37,75,0.06);
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .principle .icon {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+  }
+  .principle h3 {
+    font-family: 'Lora', serif;
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--plum);
+    margin-bottom: 6px;
+  }
+  .principle p {
+    color: #555;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  /* GREEN / RED GRID */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  @media (max-width: 700px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  .do-card, .dont-card {
+    border-radius: 12px;
+    padding: 28px;
+  }
+  .do-card {
+    background: var(--green-bg);
+    border: 2px solid #bbf7d0;
+  }
+  .dont-card {
+    background: var(--red-bg);
+    border: 2px solid #fecaca;
+  }
+  .do-card h3, .dont-card h3 {
+    font-family: 'Lora', serif;
+    font-size: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .do-card h3 { color: #166534; }
+  .dont-card h3 { color: #991b1b; }
+
+  .do-card ul, .dont-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .do-card li, .dont-card li {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+    font-size: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .do-card li:last-child, .dont-card li:last-child { border: none; }
+  .do-card li::before { content: "✅"; flex-shrink: 0; }
+  .dont-card li::before { content: "❌"; flex-shrink: 0; }
+  .dont-card li { text-decoration: line-through; color: #999; }
+
+  /* REFRAME TABLE */
+  .reframe-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px rgba(54,37,75,0.06);
+  }
+  .reframe-table thead th {
+    background: var(--plum);
+    color: white;
+    padding: 14px 20px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .reframe-table tbody td {
+    padding: 14px 20px;
+    background: white;
+    border-bottom: 1px solid #f0ecf5;
+    font-size: 15px;
+    vertical-align: top;
+  }
+  .reframe-table tbody tr:last-child td { border: none; }
+  .reframe-table .wrong {
+    color: #991b1b;
+    text-decoration: line-through;
+    background: #fef8f8;
+  }
+  .reframe-table .right {
+    color: #166534;
+    font-weight: 600;
+    background: #f8fef8;
+  }
+
+  /* DISCLAIMER BOX */
+  .disclaimer-section {
+    background: white;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 2px 12px rgba(54,37,75,0.06);
+    margin: 30px 0;
+  }
+  .disclaimer-section h3 {
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    margin-bottom: 24px;
+    color: var(--plum);
+  }
+
+  /* AD MOCKUP */
+  .ad-mockup {
+    background: #faf8fc;
+    border: 2px solid var(--deco);
+    border-radius: 16px;
+    overflow: hidden;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  .ad-mockup .ad-image {
+    background: linear-gradient(135deg, var(--deco) 0%, var(--pink) 100%);
+    height: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'Lora', serif;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    padding: 30px;
+    position: relative;
+  }
+  .ad-mockup .actor-label {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+  }
+  .ad-mockup .ad-body {
+    padding: 20px;
+  }
+  .ad-mockup .ad-headline {
+    font-family: 'Lora', serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--plum);
+    margin-bottom: 8px;
+  }
+  .ad-mockup .ad-text {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .ad-mockup .ad-cta {
+    display: inline-block;
+    background: var(--plum);
+    color: white;
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-weight: 600;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .ad-mockup .ad-disclaimer {
+    font-size: 11px;
+    color: var(--mauve);
+    line-height: 1.4;
+    border-top: 1px solid #eee;
+    padding-top: 12px;
+  }
+
+  /* CALLOUT LABELS */
+  .callout-wrapper {
+    position: relative;
+    max-width: 500px;
+    margin: 0 auto;
+  }
+  .callout {
+    position: absolute;
+    background: var(--plum);
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    z-index: 3;
+  }
+  .callout::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+  }
+  .callout-actor { top: 12px; right: -120px; }
+  .callout-disclaimer { bottom: 12px; right: -160px; }
+
+  /* VISUAL DONTS */
+  .visual-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 16px;
+  }
+  .visual-item {
+    background: white;
+    border-radius: 12px;
+    padding: 24px 16px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(54,37,75,0.06);
+    border: 2px solid #fecaca;
+  }
+  .visual-item .emoji {
+    font-size: 36px;
+    margin-bottom: 10px;
+  }
+  .visual-item .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #991b1b;
+  }
+
+  /* CHECKLIST */
+  .checklist {
+    background: white;
+    border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 2px 12px rgba(54,37,75,0.06);
+  }
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0ecf5;
+    font-size: 15px;
+  }
+  .checklist-item:last-child { border: none; }
+  .checkbox {
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--deco);
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  /* FOOTER */
+  .footer {
+    background: var(--plum);
+    color: rgba(255,255,255,0.7);
+    padding: 40px;
+    text-align: center;
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .footer strong { color: white; }
+
+  /* DIVIDER */
+  .divider {
+    height: 1px;
+    background: var(--deco);
+    max-width: 200px;
+    margin: 0 auto;
+    opacity: 0.5;
+  }
+
+  /* PRINT */
+  @media print {
+    .hero { padding: 30px; }
+    .hero h1 { font-size: 28px; }
+    .section { padding: 30px 0; }
+    body { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>🚦 Nalena Ad Compliance Guide</h1>
+  <p class="subtitle">For media buyers, creative team & anyone touching ad copy</p>
+  <span class="badge">LAST UPDATED: MARCH 18, 2026</span>
+</div>
+
+<!-- ONE RULE -->
+<div class="one-rule">
+  <div class="one-rule-card">
+    <div class="label">The One Rule</div>
+    <h2>Sell the Nalena <em>Program</em>.<br>Never sell the drug.</h2>
+  </div>
+</div>
+
+<!-- 5 PRINCIPLES -->
+<div class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>5 Principles</h2>
+      <p>Everything flows from these. If you know these, you know what's OK.</p>
+    </div>
+    <div class="principles">
+      <div class="principle">
+        <div class="icon" style="background:#f0fdf4;">🏆</div>
+        <div>
+          <h3>1. The Program Gets Credit</h3>
+          <p>Every claim — weight loss, appetite, energy — must be about <strong>"the Nalena program."</strong> Never attribute results to the medication itself. The program includes medication + clinician oversight + ongoing support. That's what we sell.</p>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="icon" style="background:#fef2f2;">🚫</div>
+        <div>
+          <h3>2. No Brand Names. No Drug Names.</h3>
+          <p>Never say Ozempic, Wegovy, Mounjaro, Zepbound, semaglutide, or tirzepatide in any ad. Say <strong>"prescription weight loss medication"</strong> or <strong>"the Nalena program."</strong></p>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="icon" style="background:#fffbeb;">⚖️</div>
+        <div>
+          <h3>3. No Equivalence</h3>
+          <p>Never say "same ingredient as," "generic," "equivalent to," or "alternative to" any branded product. Never compare our pricing to branded drugs. <strong>We are the Nalena program.</strong></p>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="icon" style="background:#f0f4ff;">🩺</div>
+        <div>
+          <h3>4. Don't Play Doctor</h3>
+          <p>Nalena doesn't approve treatments, recommend medications, or guarantee outcomes. The provider does. Say <strong>"your provider will assess"</strong> — never "your treatment is approved."</p>
+        </div>
+      </div>
+      <div class="principle">
+        <div class="icon" style="background:#faf5ff;">🤔</div>
+        <div>
+          <h3>5. When In Doubt, Leave It Out</h3>
+          <p>If you're not sure a claim is OK, don't run it. Ask Brayden. Ask legal. One bad ad can kill a 7-figure ad account.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- SAY / DON'T SAY -->
+<div class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Say This, Not That</h2>
+      <p>Quick reference — green is go, red is stop.</p>
+    </div>
+    <div class="two-col">
+      <div class="do-card">
+        <h3>✅ Say This</h3>
+        <ul>
+          <li>The Nalena program</li>
+          <li>Nalena members see 15-20% weight loss</li>
+          <li>Prescription weight loss medication included</li>
+          <li>Doctor-prescribed / Clinician-guided</li>
+          <li>Prepared by licensed pharmacies</li>
+          <li>Real results from real women</li>
+          <li>Shipping included</li>
+          <li>Select an option for your provider to assess</li>
+          <li>Dosage adjustments, as clinically indicated</li>
+          <li>Results may vary</li>
+          <li>Get back to who you used to be</li>
+        </ul>
+      </div>
+      <div class="dont-card">
+        <h3>❌ Never Say This</h3>
+        <ul>
+          <li>Ozempic / Wegovy / Mounjaro / Zepbound</li>
+          <li>Semaglutide / Tirzepatide (in ads)</li>
+          <li>"Same ingredient as…"</li>
+          <li>"Generic Ozempic" or "Generic Mounjaro"</li>
+          <li>"Clinically proven" / "Backed by science"</li>
+          <li>"FDA-approved" (our meds aren't)</li>
+          <li>"Cheaper than [brand]"</li>
+          <li>"Choose your treatment"</li>
+          <li>"Your treatment is approved"</li>
+          <li>"Free dosage increases"</li>
+          <li>"Like magic" / any guarantee</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- REFRAME TABLE -->
+<div class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>The Reframe Cheat Sheet</h2>
+      <p>Same idea, compliant language. Left column is wrong, right column is how to say it.</p>
+    </div>
+    <table class="reframe-table">
+      <thead>
+        <tr>
+          <th>❌ Don't Write</th>
+          <th>✅ Write Instead</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td class="wrong">GLP-1s cause 15-20% weight loss</td><td class="right">Nalena members see 15-20% weight loss</td></tr>
+        <tr><td class="wrong">GLP-1 restores hunger signals</td><td class="right">The Nalena program helps restore hunger signals</td></tr>
+        <tr><td class="wrong">Same ingredient as Ozempic</td><td class="right">Prescription weight loss medication included</td></tr>
+        <tr><td class="wrong">Clinically proven</td><td class="right">Real results from real women</td></tr>
+        <tr><td class="wrong">FDA-approved weight loss</td><td class="right">Doctor-prescribed weight loss program</td></tr>
+        <tr><td class="wrong">Generic Mounjaro</td><td class="right">Prepared by licensed pharmacies</td></tr>
+        <tr><td class="wrong">Free delivery</td><td class="right">Shipping included</td></tr>
+        <tr><td class="wrong">Choose your treatment</td><td class="right">Select an option for your provider to assess</td></tr>
+        <tr><td class="wrong">Free dosage increases</td><td class="right">Dosage adjustments, as clinically indicated</td></tr>
+        <tr><td class="wrong">Your treatment is approved</td><td class="right">Your provider will review your information</td></tr>
+        <tr><td class="wrong">Nalena makes GLP-1 care simple</td><td class="right">Nalena makes weight management care simple</td></tr>
+        <tr><td class="wrong">Women in midlife have used GLP-1</td><td class="right">Women in midlife have used medical weight loss programs</td></tr>
+        <tr><td class="wrong">On average, GLP-1 patients lost 18%</td><td class="right">Nalena program participants experience significant weight loss</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- AD EXAMPLE -->
+<div class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Anatomy of a Compliant Ad</h2>
+      <p>Here's what a properly formatted Nalena ad looks like.</p>
+    </div>
+    <div class="ad-mockup">
+      <div class="ad-image">
+        <span class="actor-label">ACTOR PORTRAYAL</span>
+        "I finally feel like myself again."
+      </div>
+      <div class="ad-body">
+        <div class="ad-headline">The Nalena Program: Get Back to Who You Used to Be</div>
+        <div class="ad-text">Women are losing 15-20% of their body weight with the Nalena program. Doctor-prescribed. Personalized. Designed for women in perimenopause and beyond.</div>
+        <span class="ad-cta">Learn More</span>
+        <div class="ad-disclaimer">Results may vary. Compounded medications are not FDA-approved. The Nalena program includes prescription medication, if prescribed by a licensed healthcare provider.</div>
+      </div>
+    </div>
+    <div style="margin-top: 30px;">
+      <div class="principles">
+        <div class="principle">
+          <div class="icon" style="background:#f0f4ff;">↖️</div>
+          <div>
+            <h3>Actor Disclosure — Top Left</h3>
+            <p>If the person didn't use Nalena or is AI-generated. Visible for first <strong>5 seconds</strong> in video. Font: 11px, white on dark overlay.</p>
+          </div>
+        </div>
+        <div class="principle">
+          <div class="icon" style="background:#f0fdf4;">💬</div>
+          <div>
+            <h3>Copy — Tied to "The Nalena Program"</h3>
+            <p>Weight loss claim attributed to the program, not the drug. No brand names, no drug names, no equivalence claims.</p>
+          </div>
+        </div>
+        <div class="principle">
+          <div class="icon" style="background:#faf5ff;">📝</div>
+          <div>
+            <h3>Disclaimer — Bottom, Always Readable</h3>
+            <p>Min <strong>8pt</strong> font (static) / <strong>14px</strong> (video). Color: <span style="color:var(--mauve);font-weight:700;">#785375</span> on light or <strong>#FFFFFF</strong> on dark. Min <strong>85% opacity</strong>. Visible <strong>4+ seconds</strong> in video.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- VISUAL DON'TS -->
+<div class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Visual No-Go's</h2>
+      <p>These visuals get flagged by Meta or create compliance risk.</p>
+    </div>
+    <div class="visual-grid">
+      <div class="visual-item">
+        <div class="emoji">⚖️</div>
+        <div class="label">Scales</div>
+      </div>
+      <div class="visual-item">
+        <div class="emoji">📏</div>
+        <div class="label">Tape Measures</div>
+      </div>
+      <div class="visual-item">
+        <div class="emoji">💉</div>
+        <div class="label">Needle Close-ups</div>
+      </div>
+      <div class="visual-item">
+        <div class="emoji">🏷️</div>
+        <div class="label">Nalena on Vial Labels</div>
+      </div>
+      <div class="visual-item">
+        <div class="emoji">💊📊</div>
+        <div class="label">Vials + Weight Stats</div>
+      </div>
+      <div class="visual-item">
+        <div class="emoji">🚫🧍‍♀️</div>
+        <div class="label">Unrealistic Bodies</div>
+      </div>
+      <div class="visual-item">
+        <div class="emoji">😰</div>
+        <div class="label">Fear / Shame Tactics</div>
+      </div>
+      <div class="visual-item">
+        <div class="emoji">📸❌</div>
+        <div class="label">B/A Without Disclaimer</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- DISCLAIMERS -->
+<div class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Required Disclaimers</h2>
+      <p>Copy these exactly. Every ad needs the main disclaimer. Others are conditional.</p>
+    </div>
+
+    <div class="disclaimer-section" style="border-left: 4px solid var(--pink);">
+      <h3>📋 Main Disclaimer — Every Ad</h3>
+      <div style="background:var(--bg); border-radius:8px; padding:20px; font-size:14px; color:var(--mauve); line-height:1.6; font-family:'Source Sans 3',sans-serif; margin-bottom: 16px;">
+        Results may vary. Compounded medications are not FDA-approved. The Nalena program includes prescription medication, if prescribed by a licensed healthcare provider.
+      </div>
+      <p style="font-size:13px; color:#888;">Font: Source Sans 3 · Min 8pt static / 14px video · Color: #785375 or #FFFFFF · Opacity: 85%+ · Bottom of ad · 4+ sec in video</p>
+    </div>
+
+    <div class="disclaimer-section" style="border-left: 4px solid var(--deco);">
+      <h3>💬 Testimonial Disclaimer — When Using Reviews or Transformations</h3>
+      <div style="background:var(--bg); border-radius:8px; padding:20px; font-size:14px; color:var(--mauve); line-height:1.6;">
+        Outcomes vary based on individual factors including lifestyle and adherence to the prescribed program. Testimonials reflect individual experiences and are not guarantees of specific outcomes.
+      </div>
+    </div>
+
+    <div class="disclaimer-section" style="border-left: 4px solid var(--deco);">
+      <h3>💊 Medication Disclaimer — When Mentioning Medication Access</h3>
+      <div style="background:var(--bg); border-radius:8px; padding:20px; font-size:14px; color:var(--mauve); line-height:1.6;">
+        Medication eligibility and prescriptions are determined solely by licensed medical providers based on clinical appropriateness. Not all individuals will qualify for medication-based treatment.
+      </div>
+    </div>
+
+    <div class="disclaimer-section" style="border-left: 4px solid var(--deco);">
+      <h3>💰 Pricing — When Showing a Price</h3>
+      <div style="display:flex; gap:20px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:200px; background:var(--green-bg); border-radius:8px; padding:16px;">
+          <div style="font-weight:700; color:#166534; margin-bottom:8px;">✅ Correct</div>
+          <div style="font-size:15px;">$279 first month, then $399/month</div>
+        </div>
+        <div style="flex:1; min-width:200px; background:var(--red-bg); border-radius:8px; padding:16px;">
+          <div style="font-weight:700; color:#991b1b; margin-bottom:8px;">❌ Wrong</div>
+          <div style="font-size:15px; text-decoration:line-through; color:#999;">$279/month</div>
+          <div style="font-size:12px; color:#991b1b; margin-top:4px;">(Hides the price increase — FTC violation)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- PRE-PUBLISH CHECKLIST -->
+<div class="section">
+  <div class="container">
+    <div class="section-header">
+      <h2>Pre-Publish Checklist</h2>
+      <p>Run through this before any ad goes live.</p>
+    </div>
+    <div class="checklist">
+      <div class="checklist-item"><div class="checkbox"></div> No brand drug names (Ozempic, Wegovy, Mounjaro, Zepbound)</div>
+      <div class="checklist-item"><div class="checkbox"></div> No generic drug names in ad copy (semaglutide, tirzepatide)</div>
+      <div class="checklist-item"><div class="checkbox"></div> No equivalence claims (same as, generic, alternative to, cheaper than)</div>
+      <div class="checklist-item"><div class="checkbox"></div> No "clinically proven" / "backed by science" / "FDA-approved"</div>
+      <div class="checklist-item"><div class="checkbox"></div> No guarantee language or percentage success rates</div>
+      <div class="checklist-item"><div class="checkbox"></div> No "choose your treatment" / "approved" / "our recommendation"</div>
+      <div class="checklist-item"><div class="checkbox"></div> All claims tied to "the Nalena program"</div>
+      <div class="checklist-item"><div class="checkbox"></div> No vials paired with efficacy claims or stats</div>
+      <div class="checklist-item"><div class="checkbox"></div> No Nalena branding on medication labels</div>
+      <div class="checklist-item"><div class="checkbox"></div> Main disclaimer present and readable</div>
+      <div class="checklist-item"><div class="checkbox"></div> "Results may vary" near any weight loss claims</div>
+      <div class="checklist-item"><div class="checkbox"></div> Actor disclosure if applicable (top, first 5 sec)</div>
+      <div class="checklist-item"><div class="checkbox"></div> Pricing shows ongoing rate if discounted intro</div>
+      <div class="checklist-item"><div class="checkbox"></div> Content rights secured (owned, licensed, or released)</div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <p><strong>Questions?</strong> Ask Brayden → Escalate to legal (McDermott / Jada)</p>
+  <p>Sources: McDermott Will & Emery (March 2026) · Jada Legal Review · FDA/FTC Guidance · DirectMeds Framework</p>
+  <p>Last updated: March 18, 2026 · Next review: April 15, 2026</p>
+</div>
+
+</body>
+</html>
