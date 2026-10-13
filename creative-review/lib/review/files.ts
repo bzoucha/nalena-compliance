@@ -6,8 +6,10 @@ import path from "node:path";
 //   blob  → Vercel Blob, browser + AI upload straight to it via /api/review/upload
 export type FileMode = "local" | "blob";
 
+/** Blob as soon as a Blob store is connected (its token appears); REVIEW_FILES=local forces disk. */
 export function fileMode(): FileMode {
-  return process.env.REVIEW_FILES === "blob" ? "blob" : "local";
+  if (process.env.REVIEW_FILES === "local") return "local";
+  return process.env.REVIEW_FILES === "blob" || process.env.BLOB_READ_WRITE_TOKEN ? "blob" : "local";
 }
 
 export const LOCAL_ROOT = path.join(process.cwd(), ".data", "files");

@@ -36,7 +36,7 @@ Drive pipeline (Briefs → Claim → Review Submissions).
 | **Statics** | Same room for images: click the ad to pin a note, compare versions side by side. |
 | **Dashboard** `/review` | Needs you · With the AI · Approved, live-updating. |
 | **Playbook** `/review/playbook` | Active rules, AI-proposed rules to approve, retired rules. |
-| **Setup** `/review/setup` | Env checklist + one-click Airtable table creation. |
+| **Setup** `/review/setup` | Checklist of keys and storage, plus database status. |
 | **AI editor CLI** `scripts/review-cli.mjs` | `jobs`, `claim`, `pull` (brief, footage, latest cut, notes, **a still per note with the pin drawn on it**), `upload --resolve`, `reply`, `rules --write`, `propose-rule`. |
 | **Renderer** `scripts/render.mjs` | `edit.json` timeline → MP4 (clips, speed, stills with push-in, text, burned captions, logo, ducked music, VO). `locate` maps a note's timestamp back to the clip and source second; `sheet` makes QA contact sheets. |
 | **Static renderer** `scripts/render-static.mjs` | HTML template → PNG at 1:1 / 4:5 / 9:16. |
@@ -57,26 +57,25 @@ Instrument Serif, the studio's colour tokens), so either works:
 - **Standalone**: deploy this folder as its own Vercel project (Root Directory = `creative-review`),
   e.g. at `review.vigomd.com`.
 
-### 2. Environment variables (Vercel → Settings → Environment Variables)
+### 2. Storage (Vercel → your project → Storage)
+
+1. **Create Database → Postgres** (Neon) and connect it to the project. This adds `DATABASE_URL`.
+   The app creates its tables (`review_projects`, `review_versions`, `review_comments`,
+   `review_rules`) by itself the first time it runs; there's nothing to set up inside the database.
+2. **Create → Blob** and connect it. This adds `BLOB_READ_WRITE_TOKEN`; videos, footage and statics
+   are then uploaded straight from the browser (and the AI) to Blob.
+
+### 3. Environment variables (Settings → Environment Variables)
 
 | var | value |
 |---|---|
 | `REVIEW_PASSWORD` | team password |
 | `REVIEW_SESSION_SECRET` | long random string |
 | `REVIEW_API_KEY` | long random string — give the same value to the AI editor |
-| `REVIEW_STORE` | `airtable` |
-| `AIRTABLE_TOKEN` | personal access token: `data.records:read`, `data.records:write` (+ `schema.bases:read/write` for setup) |
-| `AIRTABLE_REVIEW_BASE_ID` | `appLGOqZqpYEgSKum` (Vigo MD - Ads) or a new base |
-| `REVIEW_FILES` | `blob` |
-| `BLOB_READ_WRITE_TOKEN` | added automatically when you connect a Blob store (Storage → Create → Blob) |
 | `REVIEW_WEBHOOK_URL` | optional: JSON POST on queued / new version / changes requested / approved (Make, Slack workflow, Telegram relay) |
-| `REVIEW_PUBLIC_URL` | e.g. `https://creative.vigomd.com`, used in notification links |
+| `REVIEW_PUBLIC_URL` | optional: e.g. `https://creative.vigomd.com`, used in notification links |
 
-### 3. Airtable tables
-
-Open `/review/setup` and click **Create tables**. This adds `Review Projects`, `Review Versions`,
-`Review Comments` and `Review Rules` to the base and leaves existing tables untouched. You can also
-ask Claude to create them with the Airtable connector; the schema is in `lib/review/schema.ts`.
+Redeploy, then open `/review/setup` to confirm everything shows green.
 
 ### 4. The AI editor
 
@@ -90,12 +89,14 @@ The `ai-ad-editor` skill handles the rest. To run it automatically, schedule a r
 ## Local dev
 
 ```bash
-cp .env.example .env.local     # REVIEW_STORE=json, REVIEW_FILES=local need no accounts
+cp .env.example .env.local     # no DATABASE_URL / Blob token needed locally
 npm install
 npm run dev                    # http://localhost:3000/review
 ```
 
-Data goes to `.data/` (git-ignored). Without `REVIEW_PASSWORD`, dev runs without a login.
+Without `DATABASE_URL`, data goes to `.data/review.json`; without a Blob token, files go to
+`.data/files/` (both git-ignored). Set `DATABASE_URL` to any Postgres to develop against a real
+database. Without `REVIEW_PASSWORD`, dev runs without a login.
 
 ## API (cookie session or `Authorization: Bearer $REVIEW_API_KEY`)
 
@@ -119,5 +120,5 @@ Data goes to `.data/` (git-ignored). Without `REVIEW_PASSWORD`, dev runs without
   in every browser.
 - Blob files are public URLs with random suffixes: unguessable, but anyone with the link can view.
   Fine for ad creatives; switch to private blobs + a streaming route if that changes.
-- Airtable allows about 5 requests per second per base, which is plenty for a review team, and the
-  client retries on 429. If the review tables get busy, give them their own base.
+- The database schema lives in `lib/review/schema.ts`. Adding a field there adds the column on the
+  next deploy; nothing is ever dropped automatically.

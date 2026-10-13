@@ -93,7 +93,7 @@ export function Dashboard({ initial }: { initial: Project[] }) {
         </div>
       )}
       <p className="mt-10 text-center text-xs text-stone">
-        AI editor queue, Airtable sync and keys: <Link href="/review/setup" className="text-gold hover:underline">setup</Link>
+        Database, storage and keys: <Link href="/review/setup" className="text-gold hover:underline">setup</Link>
       </p>
     </div>
   );

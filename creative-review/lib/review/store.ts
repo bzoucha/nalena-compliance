@@ -2,11 +2,13 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { randomBytes } from "node:crypto";
+import postgres from "postgres";
 import { TABLES, type FieldDef, type TableKey } from "./schema";
 import type { Rows } from "./types";
 
-// A tiny CRUD layer with two backends: a JSON file for local dev and Airtable
-// for production. All domain logic lives in service.ts on top of this.
+// A tiny CRUD layer with two backends: Postgres in production (DATABASE_URL,
+// set by Vercel's Postgres integration) and a JSON file for local dev. All
+// domain logic lives in service.ts on top of this.
 
 export type Where = Record<string, string | number | boolean | Array<string | number>>;
 
@@ -44,6 +46,9 @@ function normalize<K extends TableKey>(table: K, id: string, raw: Record<string,
             out[name] = [];
           }
         } else out[name] = v ?? [];
+        break;
+      case "date":
+        out[name] = v instanceof Date ? v.toISOString() : v == null ? "" : String(v);
         break;
       default:
         out[name] = v == null ? "" : String(v);
@@ -148,102 +153,123 @@ function jsonStore(): Store {
   return { projects: table("projects"), versions: table("versions"), comments: table("comments"), rules: table("rules") };
 }
 
-// ─── Airtable store (production) ──────────────────────────────────────────
+// ─── Postgres store (production: Vercel Postgres / Neon) ──────────────────
 
-function airtableStore(): Store {
-  const token = process.env.AIRTABLE_TOKEN;
-  const base = process.env.AIRTABLE_REVIEW_BASE_ID || process.env.AIRTABLE_BASE_ID;
-  if (!token || !base) throw new Error("REVIEW_STORE=airtable needs AIRTABLE_TOKEN and AIRTABLE_REVIEW_BASE_ID");
-  const apiRoot = (process.env.AIRTABLE_API_URL || "https://api.airtable.com").replace(/\/$/, "");
+const SQL_TYPES: Record<FieldDef["type"], string> = {
+  text: "text",
+  longtext: "text",
+  select: "text",
+  number: "double precision",
+  bool: "boolean",
+  json: "jsonb",
+  date: "timestamptz",
+};
 
-  async function call(url: string, init: RequestInit = {}): Promise<Record<string, unknown>> {
-    for (let attempt = 0; ; attempt++) {
-      const res = await fetch(url, {
-        ...init,
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...(init.headers ?? {}) },
-        cache: "no-store",
-      });
-      if (res.ok) return (await res.json()) as Record<string, unknown>;
-      // Airtable allows 5 req/s per base; back off on 429 and transient 5xx.
-      if ((res.status === 429 || res.status >= 500) && attempt < 4) {
-        await new Promise((r) => setTimeout(r, 400 * 2 ** attempt));
-        continue;
+const pg = globalThis as unknown as { __reviewSql?: postgres.Sql; __reviewSchema?: Promise<void> };
+
+// Tables and columns are created from schema.ts on first use, so a fresh
+// database needs no setup step and new fields appear on the next deploy.
+async function migrate(sql: postgres.Sql) {
+  await sql.begin(async (tx) => {
+    // Serverless instances can cold-start together; serialise the DDL.
+    await tx.unsafe("SELECT pg_advisory_xact_lock(hashtext('vigo_review_schema'))");
+    for (const key of Object.keys(TABLES) as TableKey[]) {
+      const t = TABLES[key].table;
+      await tx.unsafe(`CREATE TABLE IF NOT EXISTS ${t} (id text PRIMARY KEY)`);
+      for (const [name, def] of Object.entries(fieldsOf(key))) {
+        await tx.unsafe(`ALTER TABLE ${t} ADD COLUMN IF NOT EXISTS "${name}" ${SQL_TYPES[def.type]}`);
       }
-      if (res.status === 404) throw new NotFoundError(url);
-      throw new Error(`Airtable ${res.status}: ${await res.text()}`);
     }
-  }
+    await tx.unsafe("CREATE INDEX IF NOT EXISTS review_projects_status ON review_projects (status)");
+    await tx.unsafe("CREATE INDEX IF NOT EXISTS review_versions_project ON review_versions (project_id)");
+    await tx.unsafe("CREATE INDEX IF NOT EXISTS review_comments_project ON review_comments (project_id)");
+    await tx.unsafe("CREATE INDEX IF NOT EXISTS review_comments_version ON review_comments (version_id)");
+  });
+}
 
-  function serialize(key: TableKey, data: Record<string, unknown>) {
-    const defs = fieldsOf(key);
-    const out: Record<string, unknown> = {};
-    for (const [name, v] of Object.entries(data)) {
-      const def = defs[name];
-      if (!def) continue;
-      if (def.type === "json") out[name] = JSON.stringify(v ?? []);
-      else if (def.type === "bool") out[name] = Boolean(v);
-      else if (v === "" || v === undefined) out[name] = null;
-      else out[name] = v;
-    }
-    return out;
-  }
-
-  function formula(where?: Where): string | null {
-    if (!where || !Object.keys(where).length) return null;
-    const q = (v: string | number) => (typeof v === "number" ? String(v) : `"${String(v).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`);
-    const parts = Object.entries(where).map(([k, v]) => {
-      if (Array.isArray(v)) return `OR(${v.map((x) => `{${k}}=${q(x)}`).join(",")})`;
-      if (typeof v === "boolean") return v ? `{${k}}` : `NOT({${k}})`;
-      return `{${k}}=${q(v)}`;
-    });
-    return parts.length === 1 ? parts[0] : `AND(${parts.join(",")})`;
-  }
+function pgStore(url: string): Store {
+  // prepare:false — Vercel/Neon hand out pooled (PgBouncer) URLs, which can't hold prepared statements.
+  const sql = (pg.__reviewSql ??= postgres(url, { max: 5, idle_timeout: 20, prepare: false, onnotice: () => {} }));
+  const ready = () =>
+    (pg.__reviewSchema ??= migrate(sql).catch((e) => {
+      pg.__reviewSchema = undefined;
+      throw e;
+    }));
 
   function table<K extends TableKey>(key: K): Table<Rows[K]> {
-    const url = `${apiRoot}/v0/${base}/${encodeURIComponent(TABLES[key].name)}`;
-    type Rec = { id: string; fields: Record<string, unknown> };
+    const name = TABLES[key].table;
+    const defs = fieldsOf(key);
+    const col = (k: string) => {
+      if (!defs[k]) throw new Error(`Unknown field ${key}.${k}`);
+      return `"${k}"`;
+    };
+    const cast = (k: string) => `::${SQL_TYPES[defs[k].type]}`;
+    const toDb = (k: string, v: unknown) => {
+      const type = defs[k].type;
+      if (type === "json") return JSON.stringify(v ?? []);
+      if (type === "bool") return Boolean(v);
+      if (v === undefined || (v === "" && type !== "text" && type !== "longtext" && type !== "select")) return null;
+      return v;
+    };
+    const fields = (data: Record<string, unknown>) => Object.keys(data).filter((k) => defs[k] && data[k] !== undefined);
+    const rows = (res: Record<string, unknown>[]) => res.map((r) => normalize(key, String(r.id), r));
+
     return {
       async list(where) {
-        const rows: Rows[K][] = [];
-        let offset: string | undefined;
-        const f = formula(where);
-        do {
-          const params = new URLSearchParams({ pageSize: "100" });
-          if (f) params.set("filterByFormula", f);
-          if (offset) params.set("offset", offset);
-          const page = await call(`${url}?${params}`);
-          for (const r of page.records as Rec[]) rows.push(normalize(key, r.id, r.fields));
-          offset = page.offset as string | undefined;
-        } while (offset);
-        return rows;
+        await ready();
+        const params: postgres.ParameterOrJSON<never>[] = [];
+        const conds: string[] = [];
+        for (const [k, v] of Object.entries(where ?? {})) {
+          if (Array.isArray(v)) {
+            if (!v.length) return [];
+            const ph = v.map((x) => {
+              params.push(x);
+              return `$${params.length}${cast(k)}`;
+            });
+            conds.push(`${col(k)} IN (${ph.join(", ")})`);
+          } else if (typeof v === "boolean") {
+            conds.push(`${col(k)} IS ${v ? "" : "NOT "}TRUE`);
+          } else {
+            params.push(v);
+            conds.push(`${col(k)} = $${params.length}${cast(k)}`);
+          }
+        }
+        const q = `SELECT * FROM ${name}${conds.length ? ` WHERE ${conds.join(" AND ")}` : ""}`;
+        return rows(await sql.unsafe(q, params));
       },
       async get(id) {
-        try {
-          const r = (await call(`${url}/${id}`)) as unknown as Rec;
-          return normalize(key, r.id, r.fields);
-        } catch (e) {
-          if (e instanceof NotFoundError) return null;
-          throw e;
-        }
+        await ready();
+        const res = await sql.unsafe(`SELECT * FROM ${name} WHERE id = $1`, [id]);
+        return res.length ? rows(res)[0] : null;
       },
       async create(data) {
-        const res = await call(url, {
-          method: "POST",
-          body: JSON.stringify({ records: [{ fields: serialize(key, data as Record<string, unknown>) }], typecast: true }),
-        });
-        const r = (res.records as Rec[])[0];
-        return normalize(key, r.id, r.fields);
+        await ready();
+        const d = data as Record<string, unknown>;
+        const keys = fields(d);
+        const params = [newId(), ...keys.map((k) => toDb(k, d[k]))] as postgres.ParameterOrJSON<never>[];
+        const q = `INSERT INTO ${name} (id${keys.map((k) => `, ${col(k)}`).join("")}) VALUES ($1${keys
+          .map((k, i) => `, $${i + 2}${cast(k)}`)
+          .join("")}) RETURNING *`;
+        return rows(await sql.unsafe(q, params))[0];
       },
       async update(id, patch) {
-        const res = await call(url, {
-          method: "PATCH",
-          body: JSON.stringify({ records: [{ id, fields: serialize(key, patch as Record<string, unknown>) }], typecast: true }),
-        });
-        const r = (res.records as Rec[])[0];
-        return normalize(key, r.id, r.fields);
+        await ready();
+        const d = patch as Record<string, unknown>;
+        const keys = fields(d);
+        if (!keys.length) {
+          const row = await this.get(id);
+          if (!row) throw new NotFoundError(`${key}/${id}`);
+          return row;
+        }
+        const params = [id, ...keys.map((k) => toDb(k, d[k]))] as postgres.ParameterOrJSON<never>[];
+        const q = `UPDATE ${name} SET ${keys.map((k, i) => `${col(k)} = $${i + 2}${cast(k)}`).join(", ")} WHERE id = $1 RETURNING *`;
+        const res = await sql.unsafe(q, params);
+        if (!res.length) throw new NotFoundError(`${key}/${id}`);
+        return rows(res)[0];
       },
       async remove(id) {
-        await call(`${url}/${id}`, { method: "DELETE" });
+        await ready();
+        await sql.unsafe(`DELETE FROM ${name} WHERE id = $1`, [id]);
       },
     };
   }
@@ -255,8 +281,33 @@ export class NotFoundError extends Error {}
 
 let cached: Store | null = null;
 
+function databaseUrl(): string | undefined {
+  return process.env.DATABASE_URL || process.env.POSTGRES_URL;
+}
+
+export function storeKind(): "postgres" | "json" {
+  return databaseUrl() ? "postgres" : "json";
+}
+
 export function store(): Store {
   if (cached) return cached;
-  cached = process.env.REVIEW_STORE === "airtable" ? airtableStore() : jsonStore();
+  const url = databaseUrl();
+  if (url) cached = pgStore(url);
+  else if (process.env.VERCEL) {
+    throw new Error("No database connected. In Vercel: Storage → Create Database → Postgres, then connect it to this project (it sets DATABASE_URL).");
+  } else cached = jsonStore();
   return cached;
+}
+
+/** For the setup page: can we reach the database, and how much is in it. */
+export async function storeStatus(): Promise<{ kind: "postgres" | "json"; ok: boolean; error?: string; counts?: Record<string, number> }> {
+  const kind = storeKind();
+  try {
+    const s = store();
+    const counts: Record<string, number> = {};
+    for (const key of Object.keys(TABLES) as TableKey[]) counts[key] = (await s[key].list()).length;
+    return { kind, ok: true, counts };
+  } catch (e) {
+    return { kind, ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
 }

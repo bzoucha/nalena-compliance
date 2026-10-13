@@ -1,5 +1,6 @@
-// Single source of truth for the review data model. Both stores (JSON for
-// local dev, Airtable for production) and the Airtable table setup read this.
+// Single source of truth for the review data model. Both stores (Postgres in
+// production, a JSON file for local dev) read this; Postgres tables and columns
+// are created from it automatically on first use.
 
 export type FieldType = "text" | "longtext" | "number" | "bool" | "json" | "date" | "select";
 
@@ -26,9 +27,7 @@ export const SCOPES = ["all", "video", "static"] as const;
 
 export const TABLES = {
   projects: {
-    name: "Review Projects",
-    primary: "name",
-    description: "AI edit / static ad review projects. One row per deliverable; versions + comments hang off it. Managed by the Vigo Creative review tool.",
+    table: "review_projects",
     fields: {
       name: { type: "text" },
       kind: { type: "select", choices: KINDS },
@@ -48,9 +47,7 @@ export const TABLES = {
     },
   },
   versions: {
-    name: "Review Versions",
-    primary: "label",
-    description: "Each uploaded cut / static revision. v1, v2, v3… per project.",
+    table: "review_versions",
     fields: {
       label: { type: "text" },
       project_id: { type: "text" },
@@ -73,9 +70,7 @@ export const TABLES = {
     },
   },
   comments: {
-    name: "Review Comments",
-    primary: "label",
-    description: "Timestamped (video) or pinned (static) feedback, plus AI replies.",
+    table: "review_comments",
     fields: {
       label: { type: "text" },
       project_id: { type: "text" },
@@ -97,9 +92,7 @@ export const TABLES = {
     },
   },
   rules: {
-    name: "Review Rules",
-    primary: "rule",
-    description: "The editing playbook. Every rule here is loaded into the AI editor skill before each edit, so feedback compounds.",
+    table: "review_rules",
     fields: {
       rule: { type: "text" },
       detail: { type: "longtext", description: "Why / example." },
@@ -112,6 +105,6 @@ export const TABLES = {
       created_at: { type: "date" },
     },
   },
-} as const satisfies Record<string, { name: string; primary: string; description: string; fields: Record<string, FieldDef> }>;
+} as const satisfies Record<string, { table: string; fields: Record<string, FieldDef> }>;
 
 export type TableKey = keyof typeof TABLES;
