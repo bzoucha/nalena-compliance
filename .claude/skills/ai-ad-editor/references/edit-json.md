@@ -61,7 +61,7 @@ node creative-review/scripts/render.mjs sheet out/v2.mp4 3.1 12.4   # QA frames 
 - **Audio**: VO/dialogue around -14 LUFS integrated
   (`ffmpeg -i out.mp4 -af loudnorm=print_format=summary -f null -`). Music 12–18% under speech.
 - **End card**: CTA on screen for at least the last 1.5 s.
-- **Disclaimers**: as the brand requires (see SKILL.md §5), readable size, long enough to read.
+- **Supers / disclaimers**: whatever the brief asks for, at a readable size, on screen long enough to read.
 
 ## Applying a note — worked example
 

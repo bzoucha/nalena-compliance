@@ -40,7 +40,7 @@ Drive pipeline (Briefs → Claim → Review Submissions).
 | **AI editor CLI** `scripts/review-cli.mjs` | `jobs`, `claim`, `pull` (brief, footage, latest cut, notes, **a still per note with the pin drawn on it**), `upload --resolve`, `reply`, `rules --write`, `propose-rule`. |
 | **Renderer** `scripts/render.mjs` | `edit.json` timeline → MP4 (clips, speed, stills with push-in, text, burned captions, logo, ducked music, VO). `locate` maps a note's timestamp back to the clip and source second; `sheet` makes QA contact sheets. |
 | **Static renderer** `scripts/render-static.mjs` | HTML template → PNG at 1:1 / 4:5 / 9:16. |
-| **Skill** `../.claude/skills/ai-ad-editor` | The loop Claude follows, including compliance checks and how to learn from feedback. |
+| **Skill** `../.claude/skills/ai-ad-editor` | The loop Claude follows and how it learns from feedback. |
 
 ## Deploy
 

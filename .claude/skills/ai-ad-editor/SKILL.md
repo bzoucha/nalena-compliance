@@ -68,8 +68,7 @@ only makes sense with the frame in front of you.
 4. QA before upload: `node creative-review/scripts/render.mjs sheet <out.mp4>` and look at the
    sheet. Check the hook lands in the first 1.5 s, captions stay inside safe zones, nothing is
    cropped badly, the CTA is on screen at the end, duration matches the brief.
-5. Brand compliance (section 5).
-6. Upload:
+5. Upload:
    ```bash
    review upload <projectId> review-work/<id>/out/v1.mp4 --by "Claude" \
      --notes "v1: hook A (0–2.1s) → problem → product → CTA. Captions on, music bed at 16%."
@@ -102,7 +101,7 @@ review upload <projectId> out/v2.mp4 --by "Claude" \
   --resolve recCCC="Music bed 0.16 → 0.18."
 ```
 
-If a note is ambiguous or you can't do it (missing footage, conflicts with compliance), **don't
+If a note is ambiguous or you can't do it (missing footage, contradicts the brief), **don't
 guess and don't resolve it** — reply and leave it open:
 `review reply <projectId> <commentId> "Is the 'logo' the VigoMD wordmark or the V3 pack shot?"`
 Upload the rest anyway; the reviewer sees the open note flagged on the next version.
@@ -134,19 +133,7 @@ After every round, read the notes you just applied and ask: **would this apply t
 
 Never propose more than ~3 rules per round. Phrase them as instructions you could follow blind.
 
-## 5. Compliance gate (before every upload)
-
-- **Nalena (NAL)**: check against `index.html` at the repo root (Nalena Ad Compliance Guide). Hard stops:
-  no drug brand/generic names (Ozempic, Wegovy, Mounjaro, Zepbound, semaglutide, tirzepatide), no
-  equivalence claims, no "FDA-approved"/"clinically proven", claims credit "the Nalena program", main
-  disclaimer at the bottom for 4+ s in video ("Results may vary. Compounded medications are not
-  FDA-approved. The Nalena program includes prescription medication, if prescribed by a licensed
-  healthcare provider."), intro pricing shows the ongoing rate.
-- **VigoMD (VIG)**: follow the brief's compliance notes; no outcome guarantees, no graphic terms,
-  ingredient claims exactly as the brief states them.
-- If a reviewer note asks for something non-compliant, don't do it — reply explaining why and leave it open.
-
-## 6. Finish
+## 5. Finish
 
 `review jobs` should no longer list the project. Tell the user: project name, version uploaded, the
 link the CLI printed, each note and what you did, any notes left open (and why), and rules proposed.
